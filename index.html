@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Choisis ton date</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#100b1c;
+    --bg-alt:#1c1330;
+    --purple:#7c5cff;
+    --purple-dim:#5a3fd6;
+    --pink:#ff5d9e;
+    --gold:#ffd166;
+    --text:#f5f0ff;
+    --text-dim:#b8aed1;
+    --card:rgba(255,255,255,0.06);
+    --card-border:rgba(255,255,255,0.14);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(124,92,255,0.35), transparent 55%),
+      radial-gradient(circle at 85% 80%, rgba(255,93,158,0.25), transparent 50%),
+      var(--bg);
+    font-family:'Quicksand', sans-serif;
+    color:var(--text);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  .sparkle{
+    position:fixed;
+    top:-20px;
+    font-size:18px;
+    opacity:0.5;
+    pointer-events:none;
+    animation:drift linear infinite;
+    z-index:0;
+  }
+  @keyframes drift{
+    to{ transform:translateY(115vh) rotate(220deg); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .sparkle{ animation:none; display:none; }
+  }
+
+  .phone{
+    width:100%;
+    max-width:400px;
+    min-height:560px;
+    background:linear-gradient(180deg, var(--bg-alt), #150e26);
+    border:1px solid var(--card-border);
+    border-radius:28px;
+    padding:26px 22px 30px;
+    position:relative;
+    z-index:1;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.6);
+    overflow:hidden;
+  }
+
+  .dots{
+    display:flex;
+    gap:6px;
+    justify-content:center;
+    margin-bottom:22px;
+  }
+  .dot{
+    width:7px; height:7px; border-radius:50%;
+    background:var(--card-border);
+    transition:background .3s, transform .3s;
+  }
+  .dot.done{ background:var(--gold); }
+  .dot.active{ background:var(--pink); transform:scale(1.3); }
+
+  .screen{ display:none; animation:fadeIn .35s ease; }
+  .screen.active{ display:block; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+
+  h1{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:1.5rem;
+    margin:0 0 6px;
+    line-height:1.25;
+  }
+  .sub{
+    color:var(--text-dim);
+    font-size:0.92rem;
+    margin:0 0 26px;
+    line-height:1.4;
+  }
+
+  .choice-area{
+    position:relative;
+    min-height:190px;
+  }
+
+  .btn{
+    display:block;
+    width:100%;
+    border:none;
+    border-radius:18px;
+    padding:18px 16px;
+    font-family:'Baloo 2', sans-serif;
+    font-size:1.05rem;
+    font-weight:600;
+    color:var(--text);
+    cursor:pointer;
+    text-align:center;
+    transition:transform .15s ease, box-shadow .15s ease, background .2s ease;
+  }
+  .btn:active{ transform:scale(0.97); }
+
+  .btn-surprise{
+    background:linear-gradient(135deg, var(--pink), var(--purple));
+    box-shadow:0 12px 24px -10px rgba(255,93,158,0.55);
+    margin-bottom:16px;
+  }
+
+  .btn-tranquillou{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    position:absolute;
+    left:0; top:78px;
+    width:100%;
+    touch-action:none;
+  }
+
+  .caption{
+    text-align:center;
+    font-size:0.85rem;
+    color:var(--gold);
+    min-height:18px;
+    margin-top:10px;
+    font-weight:600;
+  }
+
+  .cards{
+    display:grid;
+    gap:12px;
+  }
+  .mystery-card{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:16px;
+    padding:18px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    cursor:pointer;
+    transition:transform .15s ease, border-color .2s ease;
+  }
+  .mystery-card:active{ transform:scale(0.97); }
+  .mystery-card .emoji{ font-size:1.6rem; }
+  .mystery-card .label{ font-family:'Baloo 2',sans-serif; font-weight:600; font-size:1rem; }
+
+  .grid-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  .opt-card{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:16px;
+    padding:16px 10px;
+    text-align:center;
+    cursor:pointer;
+    transition:transform .15s ease, border-color .2s ease, background .2s ease;
+  }
+  .opt-card:active{ transform:scale(0.96); }
+  .opt-card .emoji{ font-size:1.5rem; display:block; margin-bottom:6px; }
+  .opt-card .label{ font-family:'Baloo 2',sans-serif; font-size:0.88rem; font-weight:600; }
+  .opt-card.selected{ border-color:var(--pink); background:rgba(255,93,158,0.14); }
+
+  .recap-box{
+    background:var(--card);
+    border:1px dashed var(--card-border);
+    border-radius:16px;
+    padding:18px;
+    font-size:0.95rem;
+    line-height:1.6;
+    margin-bottom:18px;
+  }
+  .recap-box b{ color:var(--gold); }
+
+  .copy-btn{
+    background:linear-gradient(135deg, var(--gold), #ff9f6b);
+    color:#241300;
+  }
+
+  .fine{
+    text-align:center;
+    font-size:0.78rem;
+    color:var(--text-dim);
+    margin-top:14px;
+  }
+
+  .loading-txt{
+    text-align:center;
+    font-family:'Baloo 2',sans-serif;
+    font-size:1rem;
+    color:var(--text-dim);
+    padding:40px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="dots">
+    <div class="dot" data-dot="0"></div>
+    <div class="dot" data-dot="1"></div>
+    <div class="dot" data-dot="2"></div>
+    <div class="dot" data-dot="3"></div>
+  </div>
+
+  <!-- SCREEN 1 : le choix piégé -->
+  <section class="screen active" data-screen="0">
+    <h1>Alors, on fait comment ?</h1>
+    <p class="sub">Deux options s'offrent à toi. Choisis bien 👀</p>
+    <div class="choice-area">
+      <button class="btn btn-surprise" id="btnSurprise">Surprise 👀</button>
+      <button class="btn btn-tranquillou" id="btnTranquillou">Tranquillou 😌</button>
+    </div>
+    <p class="caption" id="caption">&nbsp;</p>
+  </section>
+
+  <!-- SCREEN 2 : mystery boxes -->
+  <section class="screen" data-screen="1">
+    <h1>Bon choix 😏</h1>
+    <p class="sub">Trois options, un seul mystère. Pick one.</p>
+    <div class="cards">
+      <div class="mystery-card" data-card="1"><span class="emoji">🎁</span><span class="label">Surprise n°1</span></div>
+      <div class="mystery-card" data-card="2"><span class="emoji">🎲</span><span class="label">Surprise n°2</span></div>
+      <div class="mystery-card" data-card="3"><span class="emoji">✨</span><span class="label">Surprise n°3</span></div>
+    </div>
+    <div class="loading-txt" id="loadingTxt" style="display:none;">Chargement du mystère...</div>
+  </section>
+
+  <!-- SCREEN 3 : type d'activité -->
+  <section class="screen" data-screen="2">
+    <h1>Ambiance du date</h1>
+    <p class="sub">Une seule règle : il faut que ça te ressemble.</p>
+    <div class="grid-2" id="activityGrid">
+      <div class="opt-card" data-activity="Rooftop & cocktail 🌆"><span class="emoji">🌆</span><span class="label">Rooftop &amp; cocktail</span></div>
+      <div class="opt-card" data-activity="Expérience insolite 🎯"><span class="emoji">🎯</span><span class="label">Un truc insolite</span></div>
+      <div class="opt-card" data-activity="Balade + bonne table 🍽️"><span class="emoji">🍽️</span><span class="label">Balade + bonne table</span></div>
+      <div class="opt-card" data-activity="Aventure totale ✈️"><span class="emoji">✈️</span><span class="label">Aventure totale</span></div>
+    </div>
+  </section>
+
+  <!-- SCREEN 4 : date -->
+  <section class="screen" data-screen="3">
+    <h1>Et niveau timing ?</h1>
+    <p class="sub">Coche ce qui t'arrange le plus.</p>
+    <div class="grid-2" id="dateGrid">
+      <div class="opt-card" data-date="Ce soir"><span class="emoji">🌙</span><span class="label">Ce soir</span></div>
+      <div class="opt-card" data-date="Demain"><span class="emoji">☀️</span><span class="label">Demain</span></div>
+      <div class="opt-card" data-date="Samedi"><span class="emoji">🎉</span><span class="label">Samedi</span></div>
+      <div class="opt-card" data-date="Dimanche"><span class="emoji">🥂</span><span class="label">Dimanche</span></div>
+    </div>
+    <button class="btn btn-surprise" id="btnValidate" style="margin-top:20px; position:static;">Valider ✅</button>
+  </section>
+
+  <!-- SCREEN 5 : recap -->
+  <section class="screen" data-screen="4">
+    <h1>Parfait 🥳</h1>
+    <p class="sub">Envoie-moi ça pour que je sache tout organiser.</p>
+    <div class="recap-box" id="recapBox"></div>
+    <button class="btn copy-btn" id="btnCopy">Copier mon choix 📋</button>
+    <p class="fine" id="copiedMsg">&nbsp;</p>
+  </section>
+</div>
+
+<script>
+  // ==== CONFIG NTFY — choisis un nom de topic unique et secret, remplace ci-dessous ====
+  const NTFY_TOPIC = "fred-clar-unposted-date"; // <-- ton topic perso
+  // ======================================================================================
+
+  // Ambient sparkles
+  const emojis = ['✨','💜','🌙','💫'];
+  for(let i=0;i<10;i++){
+    const s = document.createElement('div');
+    s.className='sparkle';
+    s.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    s.style.left = Math.random()*100+'vw';
+    s.style.animationDuration = (12+Math.random()*10)+'s';
+    s.style.animationDelay = (Math.random()*10)+'s';
+    document.body.appendChild(s);
+  }
+
+  const screens = document.querySelectorAll('.screen');
+  const dots = document.querySelectorAll('.dot');
+  const state = { activity:null, date:null, surpriseNb:null };
+
+  function goTo(index){
+    screens.forEach(sc => sc.classList.toggle('active', sc.dataset.screen == index));
+    dots.forEach((d,i)=>{
+      d.classList.toggle('active', i===index);
+      d.classList.toggle('done', i<index);
+    });
+  }
+
+  // ---- Screen 1 : the dodge gag ----
+  const btnT = document.getElementById('btnTranquillou');
+  const caption = document.getElementById('caption');
+  const area = document.querySelector('.choice-area');
+  let escapes = 0;
+  const maxEscapes = 3;
+  const lines = [
+    "Nan nan attends 😂",
+    "Raté, encore !",
+    "Presque... pas vraiment 👀",
+    "Bon ok, tu insistes..."
+  ];
+
+  function dodge(){
+    const areaRect = area.getBoundingClientRect();
+    const btnRect = btnT.getBoundingClientRect();
+    const maxLeft = areaRect.width - btnRect.width;
+    const maxTop = 78 + 90; // stay within visible area below surprise btn
+    const newLeft = Math.max(0, Math.random()*maxLeft);
+    const newTop = 78 + Math.random()*70;
+    btnT.style.left = newLeft+'px';
+    btnT.style.top = newTop+'px';
+    caption.textContent = lines[Math.min(escapes, lines.length-1)];
+  }
+
+  function tryEscape(e){
+    if(escapes < maxEscapes){
+      e.preventDefault();
+      escapes++;
+      dodge();
+    } else {
+      caption.textContent = "Bon bah c'est réglé : SURPRISE 😏";
+      setTimeout(()=>goTo(1), 700);
+    }
+  }
+
+  btnT.addEventListener('touchstart', tryEscape, {passive:false});
+  btnT.addEventListener('mousedown', tryEscape);
+
+  document.getElementById('btnSurprise').addEventListener('click', ()=>goTo(1));
+
+  // ---- Screen 2 : mystery cards ----
+  document.querySelectorAll('.mystery-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      state.surpriseNb = card.dataset.card;
+      document.querySelector('.cards').style.display='none';
+      const lt = document.getElementById('loadingTxt');
+      lt.style.display='block';
+      setTimeout(()=>goTo(2), 900);
+    });
+  });
+
+  // ---- Screen 3 : activity ----
+  document.querySelectorAll('#activityGrid .opt-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      document.querySelectorAll('#activityGrid .opt-card').forEach(c=>c.classList.remove('selected'));
+      card.classList.add('selected');
+      state.activity = card.dataset.activity;
+      setTimeout(()=>goTo(3), 350);
+    });
+  });
+
+  // ---- Screen 4 : date ----
+  document.querySelectorAll('#dateGrid .opt-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      document.querySelectorAll('#dateGrid .opt-card').forEach(c=>c.classList.remove('selected'));
+      card.classList.add('selected');
+      state.date = card.dataset.date;
+    });
+  });
+
+  document.getElementById('btnValidate').addEventListener('click', ()=>{
+    if(!state.date){ 
+      state.date = "à définir";
+    }
+    const recap = document.getElementById('recapBox');
+    recap.innerHTML = `Mon choix : <b>${state.activity || 'surprise totale'}</b><br>Dispo : <b>${state.date}</b><br><br>À toi de me surprendre pour la suite 😏`;
+    goTo(4);
+
+    // Envoi automatique et silencieux du choix via notification push (ntfy.sh)
+    const msg = `Activité : ${state.activity || 'surprise totale'} | Dispo : ${state.date} | Surprise n° ${state.surpriseNb || '—'}`;
+    fetch(`https://ntfy.sh/${NTFY_TOPIC}`, {
+      method: 'POST',
+      body: msg,
+      headers: { 'Title': 'Nouveau choix de date' }
+    }).catch(err => console.log('Envoi notif échoué (silencieux):', err));
+  });
+
+  // ---- Screen 5 : copy ----
+  document.getElementById('btnCopy').addEventListener('click', ()=>{
+    const text = `Mon choix : ${state.activity || 'surprise totale'} — Dispo : ${state.date}`;
+    navigator.clipboard.writeText(text).then(()=>{
+      document.getElementById('copiedMsg').textContent = "Copié ! Colle-le à Freddy 😌";
+    }).catch(()=>{
+      document.getElementById('copiedMsg').textContent = text;
+    });
+  });
+</script>
+
+</body>
+</html>
