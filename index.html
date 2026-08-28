@@ -163,6 +163,7 @@
   .mystery-card:active{ transform:scale(0.97); }
   .mystery-card .emoji{ font-size:1.6rem; }
   .mystery-card .label{ font-family:'Baloo 2',sans-serif; font-weight:600; font-size:1rem; }
+  .mystery-card .label small{ display:block; font-family:'Quicksand',sans-serif; font-weight:500; font-size:0.78rem; color:var(--text-dim); margin-top:2px; }
 
   .grid-2{
     display:grid;
@@ -194,6 +195,21 @@
   }
   .recap-box b{ color:var(--gold); }
 
+  .note-input{
+    width:100%;
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:14px;
+    padding:14px;
+    color:var(--text);
+    font-family:'Quicksand', sans-serif;
+    font-size:0.92rem;
+    resize:none;
+    margin-bottom:14px;
+  }
+  .note-input::placeholder{ color:var(--text-dim); }
+  .note-input:focus{ outline:none; border-color:var(--pink); }
+
   .copy-btn{
     background:linear-gradient(135deg, var(--gold), #ff9f6b);
     color:#241300;
@@ -223,6 +239,7 @@
     <div class="dot" data-dot="1"></div>
     <div class="dot" data-dot="2"></div>
     <div class="dot" data-dot="3"></div>
+    <div class="dot" data-dot="4"></div>
   </div>
 
   <!-- SCREEN 1 : le choix piégé -->
@@ -241,9 +258,9 @@
     <h1>Bon choix 😏</h1>
     <p class="sub">Trois options, un seul mystère. Pick one.</p>
     <div class="cards">
-      <div class="mystery-card" data-card="1"><span class="emoji">🎁</span><span class="label">Surprise n°1</span></div>
-      <div class="mystery-card" data-card="2"><span class="emoji">🎲</span><span class="label">Surprise n°2</span></div>
-      <div class="mystery-card" data-card="3"><span class="emoji">✨</span><span class="label">Surprise n°3</span></div>
+      <div class="mystery-card" data-card="1"><span class="emoji">🎁</span><span class="label">Surprise n°1<br><small>Ambiance douce</small></span></div>
+      <div class="mystery-card" data-card="2"><span class="emoji">🎲</span><span class="label">Surprise n°2<br><small>Un brin d'audace</small></span></div>
+      <div class="mystery-card" data-card="3"><span class="emoji">✨</span><span class="label">Surprise n°3<br><small>Mystère total</small></span></div>
     </div>
     <div class="loading-txt" id="loadingTxt" style="display:none;">Chargement du mystère...</div>
   </section>
@@ -270,14 +287,15 @@
       <div class="opt-card" data-date="Samedi"><span class="emoji">🎉</span><span class="label">Samedi</span></div>
       <div class="opt-card" data-date="Dimanche"><span class="emoji">🥂</span><span class="label">Dimanche</span></div>
     </div>
-    <button class="btn btn-surprise" id="btnValidate" style="margin-top:20px; position:static;">Valider ✅</button>
   </section>
 
   <!-- SCREEN 5 : recap -->
   <section class="screen" data-screen="4">
     <h1>Parfait 🥳</h1>
-    <p class="sub">J'ai bien reçu ton choix, à moi de jouer maintenant 😏</p>
+    <p class="sub" id="screen5Sub">Une precision a ajouter avant que je m'occupe de tout ? (facultatif)</p>
     <div class="recap-box" id="recapBox"></div>
+    <textarea class="note-input" id="noteInput" rows="3" placeholder="Écris-moi un petit mot si tu veux..."></textarea>
+    <button class="btn btn-surprise" id="btnSend">Envoyer ✅</button>
   </section>
 </div>
 
@@ -378,24 +396,27 @@
       document.querySelectorAll('#dateGrid .opt-card').forEach(c=>c.classList.remove('selected'));
       card.classList.add('selected');
       state.date = card.dataset.date;
+      const recap = document.getElementById('recapBox');
+      recap.innerHTML = `Mon choix : <b>${state.activity || 'surprise totale'}</b><br>Dispo : <b>${state.date}</b>`;
+      setTimeout(()=>goTo(4), 350);
     });
   });
 
-  document.getElementById('btnValidate').addEventListener('click', ()=>{
-    if(!state.date){ 
-      state.date = "à définir";
-    }
-    const recap = document.getElementById('recapBox');
-    recap.innerHTML = `Mon choix : <b>${state.activity || 'surprise totale'}</b><br>Dispo : <b>${state.date}</b>`;
-    goTo(4);
+  document.getElementById('btnSend').addEventListener('click', ()=>{
+    const note = document.getElementById('noteInput').value.trim();
 
-    // Envoi automatique et silencieux du choix via notification push (ntfy.sh)
-    const msg = `Activité : ${state.activity || 'surprise totale'} | Dispo : ${state.date} | Surprise n° ${state.surpriseNb || '—'}`;
+    // Envoi automatique et silencieux du choix (+ note éventuelle) via ntfy.sh
+    let msg = `Activité : ${state.activity || 'surprise totale'} | Dispo : ${state.date} | Surprise n° ${state.surpriseNb || '—'}`;
+    if(note){ msg += ` | Note : ${note}`; }
     fetch(`https://ntfy.sh/${NTFY_TOPIC}`, {
       method: 'POST',
       body: msg,
       headers: { 'Title': 'Nouveau choix de date' }
     }).catch(err => console.log('Envoi notif échoué (silencieux):', err));
+
+    document.getElementById('screen5Sub').textContent = "C'est noté, à moi de jouer maintenant 😏";
+    document.getElementById('noteInput').style.display = 'none';
+    document.getElementById('btnSend').style.display = 'none';
   });
 </script>
 
