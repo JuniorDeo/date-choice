@@ -386,7 +386,7 @@
       state.date = "à définir";
     }
     const recap = document.getElementById('recapBox');
-    recap.innerHTML = `Mon choix : <b>${state.activity || 'surprise totale'}</b><br>Dispo : <b>${state.date}</b><br><br>À toi de me surprendre pour la suite 😏`;
+    recap.innerHTML = `Mon choix : <b>${state.activity || 'surprise totale'}</b><br>Dispo : <b>${state.date}</b>`;
     goTo(4);
 
     // Envoi automatique et silencieux du choix via notification push (ntfy.sh)
