@@ -276,10 +276,8 @@
   <!-- SCREEN 5 : recap -->
   <section class="screen" data-screen="4">
     <h1>Parfait 🥳</h1>
-    <p class="sub">Envoie-moi ça pour que je sache tout organiser.</p>
+    <p class="sub">J'ai bien reçu ton choix, à moi de jouer maintenant 😏</p>
     <div class="recap-box" id="recapBox"></div>
-    <button class="btn copy-btn" id="btnCopy">Copier mon choix 📋</button>
-    <p class="fine" id="copiedMsg">&nbsp;</p>
   </section>
 </div>
 
@@ -398,16 +396,6 @@
       body: msg,
       headers: { 'Title': 'Nouveau choix de date' }
     }).catch(err => console.log('Envoi notif échoué (silencieux):', err));
-  });
-
-  // ---- Screen 5 : copy ----
-  document.getElementById('btnCopy').addEventListener('click', ()=>{
-    const text = `Mon choix : ${state.activity || 'surprise totale'} — Dispo : ${state.date}`;
-    navigator.clipboard.writeText(text).then(()=>{
-      document.getElementById('copiedMsg').textContent = "Copié ! Colle-le à Freddy 😌";
-    }).catch(()=>{
-      document.getElementById('copiedMsg').textContent = text;
-    });
   });
 </script>
 
